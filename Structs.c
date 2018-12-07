@@ -83,18 +83,19 @@ void display(Controller *cont)
     {
         for (i = cont->front; i <= cont->rear; i++)
         {
-            printf("%s %d\n", cont->per[i].nombre,i);
+            printf("%s\n", cont->per[i].nombre);
         }
     }
-    else
-    {
-        for (i = cont->front; i < MAXSIZE; i++)
-        {
-            printf("%s %d\n", cont->per[i].nombre,i);
-        }
-        for (i = 0; i <= cont->rear; i++)
-        {
-            printf("%s %d\n", cont->per[i].nombre,i);
-        }
-    }
+     else
+     {
+        printf("NO HAY PERSONAS ESPERANDO\n\n");
+    //     for (i = cont->front; i < MAXSIZE; i++)
+    //     {
+    //         printf("->%s %d\n", cont->per[i].nombre,i);
+    //     }
+    //     for (i = 0; i <= cont->rear; i++)
+    //     {
+    //         printf("%s %d\n", cont->per[i].nombre,i);
+    //     }
+     }
 }

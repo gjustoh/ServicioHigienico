@@ -25,21 +25,17 @@ int main(int argc, char *argv[])
 
     Persona hombre;
     hombre.id = controlador->cont;
-    
-    
-    id= controlador->cont;
+
+    id = controlador->cont;
     strcpy(hombre.nombre, argv[1]);
     hombre.genero = 'H';
     enqueue(controlador, hombre);
     controlador->cont++;
-    display(controlador);
-    printf("Servicios higienicos: %d %d %d\n", controlador->cont, hombre.id,id);
-    printf("bienvenido %s a los servicios higienicos\n", hombre.nombre);
+    printf("Bienvenido  %s  entrando a los SERVICIOS HIGIENICOS\n\n",hombre.nombre);
+    printf("Esperando entrar al servicio higienico\n\n");
     DesbloquearSemaforo(idSem, 0);
-    // for (;;)
-    // {
-            printf("Servicios higienicos: %d %d %d\n", controlador->cont, hombre.id,id);
-        BloquearSemaforo(controlador->id_proceso_2, id);
-        printf("usted entro al servicios higienicos\n");
+    BloquearSemaforo(controlador->id_proceso_2, id);
+    printf("usted entro al servicios higienico\n");
+    printf(">");
     // }
 }
