@@ -5,7 +5,7 @@
  *nombre: nombre asignado
  *genero: H si es hombre y M si es mujer
  *id: identificador de la persona para el uso de semaforos
- *isOcuped:
+ *isOcuped: marca si esta ocupado o no la persona
  * 
  */
 typedef struct
