@@ -1,11 +1,11 @@
-#define MAXSIZE 20
+#define MAXSIZE 50
 /*
  *
  *Estructura Persona datos:
  *nombre: nombre asignado
  *genero: H si es hombre y M si es mujer
  *id: identificador de la persona para el uso de semaforos
- *isOcuped:"posible valor que no sirva"->esto nolo uso todavia, creo que lo eliminare 
+ *isOcuped:
  * 
  */
 typedef struct
@@ -48,33 +48,57 @@ typedef struct
     int id_persona;
 } Controller;
 
+/*
+ *
+ * pregunta si esta vacio o no nuestra cola
+ * 
+ */
 int isempty(Controller *cont)
 {
     return cont->size <= 0;
 }
-
+/* 
+ * 
+ * pregunta si esta lleno nuestra cola
+ * 
+ */
 int isfull(Controller *cont)
 {
     return cont->size == MAXSIZE;
 }
-
+/* 
+ * 
+ * encola una nueva persona donde:
+ * cont: puntero a la memoria compartida
+ * _per: Persona a ser encolada
+ * 
+ */
 
 void enqueue(Controller *cont, Persona _per)
 {
+    // si la cola aun no esta llena
     if (cont->size < MAXSIZE)
     {
+        // si esta vacia la cola aumentamos el tamaño
+        //inicializamos las posiciones final e inicial en 0
+        //ponemos en la posicion 0 a la nueva persona
         if (cont->size <= 0&&cont->front==0)
         {
             cont->per[0] = _per;
             cont->front = cont->rear = 0;
             cont->size = 1;
         }
+        //Cuando la parte trasera es la ultima pero aun la cola no esta llena
+        //La nueva persona se agrega en la primera posicion  asignamos rear a 0
+        //aumentamos el tamaño, pero no tocamos al front
         else if (cont->rear == MAXSIZE - 1)
         {
             cont->per[0] = _per;
             cont->rear = 0;
             cont->size++;
         }
+        //En caso general se agrega en al siguiente posicion del ultimo elemento agregado
+        //se aumenta el tamaño y la posicion trasera
         else
         {
             cont->per[cont->rear+1] = _per;
@@ -82,17 +106,28 @@ void enqueue(Controller *cont, Persona _per)
             cont->size++;
         }
     }
+    //mensaje si la cola esta llena
     else
     {
         printf("La cola está llena \n ");
     }
 }
+/*
+ * 
+ * Desencolamos a la primera persona que ingreso a nuestra cola
+ * 
+ */
 Persona dequeue(Controller *cont)
 {
+    //Si la cola esta vacia muestra un mensaje
     if (cont->size < 0)
     {
         printf("Queue is empty\n");
     }
+    //Si hay elementos en la cola
+    //disminuye la cantidad de personas en nuestra cola
+    //aumenta la posicion del que esta en la cabeza
+    //ponemos en ocupado
     else
     {
         cont->size--;
@@ -100,12 +135,25 @@ Persona dequeue(Controller *cont)
         cont->per[cont->front].isOcuped='S';
     }
 }
+
+/*
+ * 
+ * Devuelve a la persona que se encuentra en la primera posicion de nuestra cola
+ * 
+ */
+
 Persona Front(Controller *cont)
 {
-    // printf("%d\n", cont->front);
     
     return cont->per[cont->front];
 }
+
+/*
+ * 
+ * Metodos display para mostrar la cola
+ * 
+ */
+
 void display(Controller *cont)
 {
     int i;
@@ -119,14 +167,7 @@ void display(Controller *cont)
      else
      {
         printf("NO HAY PERSONAS ESPERANDO\n\n");
-    //     for (i = cont->front; i < MAXSIZE; i++)
-    //     {
-    //         printf("->%s %d\n", cont->per[i].nombre,i);
-    //     }
-    //     for (i = 0; i <= cont->rear; i++)
-    //     {
-    //         printf("%s %d\n", cont->per[i].nombre,i);
-    //     }
+    
      }
 }
 void display2(Controller *cont)
@@ -142,13 +183,6 @@ void display2(Controller *cont)
      else
      {
         printf("NO HAY PERSONAS ESPERANDO\n\n");
-    //     for (i = cont->front; i < MAXSIZE; i++)
-    //     {
-    //         printf("->%s %d\n", cont->per[i].nombre,i);
-    //     }
-    //     for (i = 0; i <= cont->rear; i++)
-    //     {
-    //         printf("%s %d\n", cont->per[i].nombre,i);
-    //     }
+    
      }
 }
