@@ -1,4 +1,6 @@
 #define MAXSIZE 50
+#ifndef _Structs_
+#define _Structs_
 /*
  *
  *Estructura Persona datos:
@@ -186,3 +188,4 @@ void display2(Controller *cont)
     
      }
 }
+#endif /* _Structs_ */
