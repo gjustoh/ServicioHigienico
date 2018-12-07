@@ -1,5 +1,6 @@
 #define MAXSIZE 20
 /*
+ *
  *Estructura Persona datos:
  *nombre: nombre asignado
  *genero: H si es hombre y M si es mujer
@@ -14,8 +15,11 @@ typedef struct
     int id;
     char isOcuped;
 } Persona;
-/*id_proceso: guarda el valor de la memoria compartida, y el valor del primer grupo de semaforos
- *id_proceso_2: guarda el valor del identificador del segundo grupo de semaforos
+/*
+ *
+ * id_proceso: guarda el valor de la memoria compartida, y el valor del primer grupo de semaforos
+ *id_proceso_2: guarda el valor del identificador del segundo grupo de semaforos que controla el mensaje que recibe la persona que entro al baño
+ *id_proceso_3: guarda el valor del identificador del tercer grupo de semaforosque controla el mensaje que recibe la persona que salio al baño
  *gen: genero que se encuentra usando los servicios higienicos 
  *L: valor de la capacidad del baño
  *occupied: cantidad de banios que se estan usando 
@@ -31,6 +35,7 @@ typedef struct
 {
     int id_proceso;
     int id_proceso_2;
+    int id_proceso_3;
     char gen;
     int L;
      int occupied;
@@ -47,15 +52,18 @@ int isempty(Controller *cont)
 {
     return cont->size <= 0;
 }
+
 int isfull(Controller *cont)
 {
     return cont->size == MAXSIZE;
 }
+
+
 void enqueue(Controller *cont, Persona _per)
 {
     if (cont->size < MAXSIZE)
     {
-        if (cont->size <= 0)
+        if (cont->size <= 0&&cont->front==0)
         {
             cont->per[0] = _per;
             cont->front = cont->rear = 0;
@@ -69,7 +77,7 @@ void enqueue(Controller *cont, Persona _per)
         }
         else
         {
-            cont->per[cont->rear + 1] = _per;
+            cont->per[cont->rear+1] = _per;
             cont->rear++;
             cont->size++;
         }

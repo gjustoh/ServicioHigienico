@@ -15,29 +15,34 @@ void entraMujer(Controller *cont)
 {
     if (cont->occupied == 0)
     {
-        // sprintf (cont->gen,"%d", 1);
         cont->gen = 'M';
     }
     if (cont->occupied == 0 || cont->gen == Front(cont).genero)
     {
         cont->occupied++;
         printf("**********************************************************************\n\n");
-        printf("capacidad para %d personas, ocupadas %d \n ", cont->L, cont->occupied);
-        printf("ingreso de %s al servicio higienico\n", Front(cont).nombre);
+        printf("ingreso de %s al servicio higienico %d\n", Front(cont).nombre, Front(cont).id);
+        printf("baños ocupados  %d de %d\n\n", cont->occupied, cont->L);
+        printf("cola de espera:\n");
+        display2(cont);
+        printf("\n\n");
+        DesbloquearSemaforo(cont->id_proceso_2, Front(cont).id);
         dequeue(cont);
     }
+    else
+    {
+        printf("**********************************************************************\n\n");
+        printf("%s en la cabeza esperando que salgan los hombres:\n\n", Front(cont).nombre);
+        // printf("**********************************************************************\n\n");
+    }
 }
-void saleMujer(Controller *cont)
-{
-}
+
 void entraHombre(Controller *cont)
 {
     if (cont->occupied == 0)
     {
-        // sprintf (cont->gen,"%d", 2);
         cont->gen = 'H';
     }
-    // printf("->%d\n",cont->gen);
     if (cont->occupied == 0 || cont->gen == Front(cont).genero)
     {
         cont->occupied++;
@@ -46,24 +51,47 @@ void entraHombre(Controller *cont)
         printf("ingreso de %s al servicio higienico %d\n", Front(cont).nombre, Front(cont).id);
 
         printf("baños ocupados  %d de %d\n\n", cont->occupied, cont->L);
-
-        dequeue(cont);
         printf("cola de espera:\n");
-        display(cont);
+        display2(cont);
+        printf("\n\n");
         DesbloquearSemaforo(cont->id_proceso_2, Front(cont).id);
+        
+        dequeue(cont);
     }
-    //  printf("->%d\n",cont->gen);
+    else
+    {
+        printf("**********************************************************************\n\n");
+        printf("%s en la cabeza esperando que salgan los hombres:\n\n", Front(cont).nombre);
+    }
 }
-void saleHombre(Controller *cont)
+void saleMujer(Controller *cont, int id)
 {
+    printf("Mujer %s saliendo del servicio higienico\n\n",cont->per[id].nombre);
+    cont->occupied--;
+    DesbloquearSemaforo(cont->id_proceso_3, id);
+    if (Front(cont).genero == 'H')
+    {
+        entraHombre(cont);
+    }
+    else if (Front(cont).genero == 'M')
+    {
+        entraMujer(cont);
+    }
 }
-int isComplet(Controller *cont)
+void saleHombre(Controller *cont, int id)
 {
-    return cont->L == cont->occupied;
-}
-int isEmpty(Controller *cont)
-{
-    return cont->occupied == 0;
+
+    printf("Hombre %s saliendo del servicio higienico\n\n",cont->per[id].nombre);
+    cont->occupied--;
+    DesbloquearSemaforo(cont->id_proceso_3, id);
+    if (Front(cont).genero == 'H')
+    {
+        entraHombre(cont);
+    }
+    else if (Front(cont).genero == 'M')
+    {
+        entraMujer(cont);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -71,9 +99,9 @@ int main(int argc, char *argv[])
     int idShMem, id;
     size_t tabMem;
     key_t llave, key;
-    int idSem, idSem2;
+    int idSem, idSem2, idSem3;
     char *buf;
-    short vals[2];
+    short *vals;
     int miSem;
     int tuSem;
     Controller *controlador;
@@ -84,10 +112,12 @@ int main(int argc, char *argv[])
 
     controlador = (Controller *)MapearMemoriaComp(idShMem);
     controlador->L = atoi(argv[1]);
-
-    idSem = CrearSemaforos(9, vals);
+    vals=0;
+    idSem = CrearSemaforos(1, vals);
     idSem2 = CrearSemaforos(9, vals);
+    idSem3 = CrearSemaforos(9, vals);
     controlador->id_proceso_2 = idSem2;
+    controlador->id_proceso_3 = idSem3;
     *((int *)controlador) = idSem;
 
     printf("**********************************************************************\n");
@@ -100,30 +130,47 @@ int main(int argc, char *argv[])
     while (1)
     {
         *((int *)controlador) = idSem;
-
         BloquearSemaforo(idSem, 0);
-        // controlador->gen=0;
-        // printf("%d", controlador->gen);
-        if (controlador->occupied < controlador->L)
+        
+        if (controlador->accion == 'E')
         {
-            if (Front(controlador).genero == 'H')
+            if (controlador->occupied < controlador->L)
             {
-                entraHombre(controlador);
+                if (Front(controlador).genero == 'H')
+                {
+                    entraHombre(controlador);
+                }
+                else
+                {
+                    entraMujer(controlador);
+                }
             }
             else
             {
-                entraMujer(controlador);
+                printf("**********************************************************************\n\n");
+                printf("Servicios higienicos llenos, espere hasta que se desocupe uno \n\n");
+                printf("cola de espera:\n");
+                display(controlador);
+                 printf("\n\n");
+                
             }
         }
-        else
+        else if (controlador->accion == 'S')
         {
-            printf("**********************************************************************\n\n");
-            printf("Servicios higienicos llenos, espere hasta que se desocupe uno \n\n");
-            printf("cola de espera:\n");
-            display(controlador);
-            printf("**********************************************************************\n\n");
+
+            if (controlador->per[controlador->id_persona].genero == 'H')
+            {
+
+                saleHombre(controlador, controlador->id_persona);
+            }
+            else if (controlador->per[controlador->id_persona].genero == 'M')
+            { 
+                saleMujer(controlador, controlador->id_persona);
+            }
         }
     }
-
+    BorrarSemaforos(idSem);
+    BorrarSemaforos(idSem2);
+    BorrarSemaforos(idSem3);
     shmctl(idShMem, IPC_RMID, NULL);
 }
