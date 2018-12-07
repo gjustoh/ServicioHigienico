@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    // Nos bloqueamos para esperar la confirmacion de que yapodemos irnosde losservicios higienicos
+    // Nos bloqueamos para esperar la confirmacion de que ya podemos irnos de los servicios higienicos
     BloquearSemaforo(controlador->id_proceso_3, id);
     printf("\n\nUsted salio de los servicios higienicos\n\n");
 }

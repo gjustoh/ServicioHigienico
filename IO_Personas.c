@@ -15,7 +15,7 @@ void entraMujer(Controller *cont)
         cont->gen = 'M';
     }
     // Comprueba que sea la primero o que haya gente de su mismo sexo en
-    // el servicio higienico para poder ingresar
+    // el servicio higienico para poder ingresar.
     if (cont->occupied == 0 || cont->gen == Front(cont).genero)
     {
         cont->occupied++;

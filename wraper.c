@@ -8,6 +8,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include "Structs.c"
 /*
  *
  * definimos la union que consta de diferentes tipos con la finalidad de crear varios semaforos e inicializarlos:
@@ -23,13 +24,14 @@ union semun {
 /*
  *
  * Reservar memoria compartida
+ * crea un nueco espacio en emmoria para compartirla, si ya esta creada
  * n: tamaño para reservar en la memoria compartida
  *  
  */
 
-int ReservarMemoriaComp(int n)
+int ReservarMemoriaComp(key_t key)
 {
-    return shmget(IPC_PRIVATE, n, IPC_CREAT | SHM_R | SHM_W);
+    return shmget(key, sizeof(Controller), IPC_CREAT | SHM_R | SHM_W);
 }
 
 /*

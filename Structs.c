@@ -31,7 +31,7 @@ typedef struct
  *size: cantidad de personas en la cola 
  *cont: identificador que incrementara por cada persona ingresada, y se asignara al campo id de Persona
  *accion: valor para identificar que accion esta aciendo, puede ser: 'E' entrar al baño o 'S' salir 
- *id_persona: servira para identificar a que persona estaremos sacando del baño
+ *id_persona: servira para identificar a que persona estaremos sacando del baño.
  */
 typedef struct
 {

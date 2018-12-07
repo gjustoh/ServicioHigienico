@@ -20,7 +20,7 @@
  * y segun sea la accion que desea realizar direcciona a su funcion correspondiente
  * el segundo grupo de parametros desbloqueara a los procesos que buscan entrar al
  * servicio higienico, y el tercer grupo de semaforos, desbloqueara a los procesos 
- * que quieran salir de los servicios higienicos
+ * que quieran salir de los servicios higienicos.
  * 
  */
 
