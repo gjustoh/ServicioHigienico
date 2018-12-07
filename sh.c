@@ -10,112 +10,45 @@
 #include "wraper.c"
 #include <sys/sem.h>
 #include "Structs.c"
+#include "IO_Personas.c"
 
-void entraMujer(Controller *cont)
-{
-    if (cont->occupied == 0)
-    {
-        cont->gen = 'M';
-    }
-    if (cont->occupied == 0 || cont->gen == Front(cont).genero)
-    {
-        cont->occupied++;
-        printf("**********************************************************************\n\n");
-        printf("ingreso de %s al servicio higienico %d\n", Front(cont).nombre, Front(cont).id);
-        printf("baños ocupados  %d de %d\n\n", cont->occupied, cont->L);
-        printf("cola de espera:\n");
-        display2(cont);
-        printf("\n\n");
-        DesbloquearSemaforo(cont->id_proceso_2, Front(cont).id);
-        dequeue(cont);
-    }
-    else
-    {
-        printf("**********************************************************************\n\n");
-        printf("%s en la cabeza esperando que salgan los hombres:\n\n", Front(cont).nombre);
-        // printf("**********************************************************************\n\n");
-    }
-}
-
-void entraHombre(Controller *cont)
-{
-    if (cont->occupied == 0)
-    {
-        cont->gen = 'H';
-    }
-    if (cont->occupied == 0 || cont->gen == Front(cont).genero)
-    {
-        cont->occupied++;
-        printf("**********************************************************************\n\n");
-
-        printf("ingreso de %s al servicio higienico %d\n", Front(cont).nombre, Front(cont).id);
-
-        printf("baños ocupados  %d de %d\n\n", cont->occupied, cont->L);
-        printf("cola de espera:\n");
-        display2(cont);
-        printf("\n\n");
-        DesbloquearSemaforo(cont->id_proceso_2, Front(cont).id);
-        
-        dequeue(cont);
-    }
-    else
-    {
-        printf("**********************************************************************\n\n");
-        printf("%s en la cabeza esperando que salgan los hombres:\n\n", Front(cont).nombre);
-    }
-}
-void saleMujer(Controller *cont, int id)
-{
-    printf("Mujer %s saliendo del servicio higienico\n\n",cont->per[id].nombre);
-    cont->occupied--;
-    DesbloquearSemaforo(cont->id_proceso_3, id);
-    if (Front(cont).genero == 'H')
-    {
-        entraHombre(cont);
-    }
-    else if (Front(cont).genero == 'M')
-    {
-        entraMujer(cont);
-    }
-}
-void saleHombre(Controller *cont, int id)
-{
-
-    printf("Hombre %s saliendo del servicio higienico\n\n",cont->per[id].nombre);
-    cont->occupied--;
-    DesbloquearSemaforo(cont->id_proceso_3, id);
-    if (Front(cont).genero == 'H')
-    {
-        entraHombre(cont);
-    }
-    else if (Front(cont).genero == 'M')
-    {
-        entraMujer(cont);
-    }
-}
+/*
+ *
+ * sh.c es el controlador de la puerta cuya funcion es organizar el uso de 
+ * los servicios higienicos sin que haya ninguna situacion bochornosa.
+ * este controlador crea 3 grupos de semaforos, el primero controla la puerta
+ * y segun sea la accion que desea realizar direcciona a su funcion correspondiente
+ * el segundo grupo de parametros desbloqueara a los procesos que buscan entrar al
+ * servicio higienico, y el tercer grupo de semaforos, desbloqueara a los procesos 
+ * que quieran salir de los servicios higienicos
+ * 
+ */
 
 int main(int argc, char *argv[])
 {
+    // Identificadores y claves para la memoria y semaforos compartidos
     int idShMem, id;
-    size_t tabMem;
-    key_t llave, key;
+    key_t key;
     int idSem, idSem2, idSem3;
-    char *buf;
+    // Sirve para inicializar el grupo de semaforos
     short *vals;
-    int miSem;
-    int tuSem;
+
     Controller *controlador;
     key = ftok("shmfile", 65);
-    llave = ftok("shmf", 33);
-
-    idShMem = shmget(key, sizeof(Controller), IPC_CREAT | SHM_R | SHM_W);
-
+    // obtiene un identificador de un segmento nuevo de memoria
+    idShMem = ReservarMemoriaComp(key);
+    // Mapea o asocia un segmento de memoria compartida al espacio de direcciones
+    // de nuestro proceso.
     controlador = (Controller *)MapearMemoriaComp(idShMem);
+    // guarda la capacidad del servicio higienico por los parametros que enviamos
     controlador->L = atoi(argv[1]);
-    vals=0;
+    // inicializa los semaforos en 0
+    vals = 0;
+    // Creacion de los 3 grupos de semaforos
     idSem = CrearSemaforos(1, vals);
-    idSem2 = CrearSemaforos(9, vals);
-    idSem3 = CrearSemaforos(9, vals);
+    idSem2 = CrearSemaforos(20, vals);
+    idSem3 = CrearSemaforos(20, vals);
+    // Guardamos los ids de los semaforos
     controlador->id_proceso_2 = idSem2;
     controlador->id_proceso_3 = idSem3;
     *((int *)controlador) = idSem;
@@ -126,51 +59,60 @@ int main(int argc, char *argv[])
     printf("**********************************************************************\n");
     printf("**********************************************************************\n\n");
     printf("capacidad para %d personas, ocupadas %d \n", controlador->L, controlador->occupied);
-
+    // Aqui nuestro controlador de la puerta del servicio higienico
     while (1)
     {
+        // Guardamos el identificador de nuestra memoria compartida
         *((int *)controlador) = idSem;
+        // Este semaforo se desbloquea cuando se dan dos acciones: E entrar
+        //  al servicio higienico y S salir del servicio higienico enviados por una persona
         BloquearSemaforo(idSem, 0);
-        
+        // Si una persona pide entrar al servicio higienico su accion es E
         if (controlador->accion == 'E')
         {
+            // Si hay porlomenos un campo vacio en el servicio higienico
             if (controlador->occupied < controlador->L)
             {
+                // Si quiere ingresar un hombre mandamos a entraHombre()
                 if (Front(controlador).genero == 'H')
                 {
                     entraHombre(controlador);
                 }
+                // Si quiere ingresar una mujer mandamos a entraMujer()
                 else
                 {
                     entraMujer(controlador);
                 }
             }
+            // Si esta lleno que me lo diga y que me muestre las personas que estan esperando los servicios higienicos
             else
             {
                 printf("**********************************************************************\n\n");
                 printf("Servicios higienicos llenos, espere hasta que se desocupe uno \n\n");
                 printf("cola de espera:\n");
                 display(controlador);
-                 printf("\n\n");
-                
+                printf("**********************************************************************\n");
             }
         }
+        // Si una persona quiere salir del servicio higienico su accion es S
         else if (controlador->accion == 'S')
         {
-
+            // Si quiere salir un hombre identificado con el id: controlador->id_persona mandamos a saleHombre()
             if (controlador->per[controlador->id_persona].genero == 'H')
             {
 
                 saleHombre(controlador, controlador->id_persona);
             }
+            // Si quiere salir una mujer identificada con el id: controlador->id_persona mandamos a saleMujer();
             else if (controlador->per[controlador->id_persona].genero == 'M')
-            { 
+            {
                 saleMujer(controlador, controlador->id_persona);
             }
         }
     }
+    // borramos todos los grupos de semaforos y memoria compartida
     BorrarSemaforos(idSem);
     BorrarSemaforos(idSem2);
     BorrarSemaforos(idSem3);
-    shmctl(idShMem, IPC_RMID, NULL);
+    BorrarMemoriaComp(idShMem);
 }
