@@ -23,7 +23,8 @@ typedef struct
  *front: identificador de la persina que se encuentra al inicio de la cola 
  *rear: analogo a front, pero apunta al final
  *size: cantidad de personas en la cola 
- *cont: identificador que incrementara por cada persona ingresada, y se asignara al campo id de Persona 
+ *cont: identificador que incrementara por cada persona ingresada, y se asignara al campo id de Persona
+ *accion: valor para identificar que accion esta aciendo, puede ser: 'E' entrar al baño o 'S' salir 
  */
 typedef struct
 {
@@ -37,6 +38,7 @@ typedef struct
     int rear;
     int size;
     int cont;
+    char accion;
 } Controller;
 
 int isempty(Controller *cont)
