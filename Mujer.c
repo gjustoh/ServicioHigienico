@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     Controller *controlador;
     key_t key = ftok("shmfile", 65);
    
-    idShMem = shmget(key, sizeof(Controller), 0666 | IPC_CREAT);
+    idShMem = shmget(key, sizeof(Controller),  IPC_CREAT | SHM_R | SHM_W);
     controlador = (Controller *)MapearMemoriaComp(idShMem);
     idSem=*((int *)controlador);
     Persona mujer;

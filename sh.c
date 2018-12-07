@@ -13,13 +13,40 @@
 
 void entraMujer(Controller *cont)
 {
-    cont->val_gen = 'H';
+    if (cont->occupied == 0)
+    {
+        // sprintf (cont->gen,"%d", 1); 
+         cont->gen = 'M';
+    }
+    if (cont->occupied == 0 || cont->gen == Front(cont).genero)
+    {
+        cont->occupied++;
+        printf("-----------------\n");
+        printf("Servicios Higienicos con capacidad para %d personas, ocupadas %d \n ", cont->L, cont->occupied);
+        printf("ingreso de %s al servicio higienico\n", Front(cont).nombre);
+        dequeue(cont);
+    }
 }
 void saleMujer(Controller *cont)
 {
 }
 void entraHombre(Controller *cont)
 {
+    if (cont->occupied == 0)
+    {
+// sprintf (cont->gen,"%d", 2); 
+        cont->gen = 'H';
+    }
+    // printf("->%d\n",cont->gen);
+    if (cont->occupied == 0 || cont->gen == Front(cont).genero)
+    {
+        cont->occupied++;
+        printf("-----------------\n");
+        printf("Servicios Higienicos con capacidad para %d personas, ocupadas %d \n", cont->L, cont->occupied);
+        printf("ingreso de %s al servicio higienico\n", Front(cont).nombre);
+        dequeue(cont);
+    }
+    //  printf("->%d\n",cont->gen);
 }
 void saleHombre(Controller *cont)
 {
@@ -49,39 +76,36 @@ int main(int argc, char *argv[])
 
     //no nos pasaron ningún id, así que lo creamos
 
-    idShMem = shmget(key, sizeof(Controller), 0666 | IPC_CREAT);
+    idShMem = shmget(key, sizeof(Controller),  IPC_CREAT | SHM_R | SHM_W);
 
     controlador = (Controller *)MapearMemoriaComp(idShMem);
     controlador->L = atoi(argv[1]);
     vals[0] = 0;
     vals[1] = 0;
-    idSem = CrearSemaforos(2, vals);
+    idSem = CrearSemaforos(9, vals);
     *((int *)controlador) = idSem;
 
     printf("-----------------\n");
     printf("Servicios Higienicos con capacidad para %d personas, ocupadas %d \n", controlador->L, controlador->occupied);
-    BloquearSemaforo(idSem, 0);
 
-    if (controlador->occupied == 0 || controlador->val_gen == Front(controlador).genero)
+    while (1)
     {
-        controlador->occupied++;
+        *((int *)controlador) = idSem;
         printf("-----------------\n");
-        printf("Servicios Higienicos con capacidad para %d personas, ocupadas %d \n", controlador->L, controlador->occupied);
-
-        printf("ingreso de %s al servicio higienico\n", Front(controlador).nombre);
-        controlador->occupied++;
+        BloquearSemaforo(idSem, 0);
+// controlador->gen=0;
+        printf("%d",controlador->gen);
+        if(controlador->occupied<controlador->L){
+            if(Front(controlador).genero=='H'){
+                entraHombre(controlador);
+            }
+            else{
+                entraMujer(controlador);
+            }
+        }        
+        
     }
-    //  while(1){
-    // // printf("-%d - %d\n", *((int *)controlador), idSem);
-    // BloquearSemaforo(idSem, 0);
-    // printf("-----------------\n");
-    // printf("Servicios higienicos - capacidad para %d personas, ocupadas %d\n", controlador->L, controlador->occupied);
 
-    // display(controlador);
-    // // sleep(5);
-
-    // }
     shmctl(idShMem, IPC_RMID, NULL);
 
-    // printf("Eres el usuario uno. El id de la memoria compartida es: %d\n", idShMem);
 }

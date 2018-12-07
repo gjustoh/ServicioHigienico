@@ -19,16 +19,16 @@ int main(int argc, char *argv[])
     Controller *controlador;
     key_t key = ftok("shmfile", 65);
    
-    idShMem = shmget(key, sizeof(Controller), 0666 | IPC_CREAT);
+    idShMem = shmget(key, sizeof(Controller),  IPC_CREAT | SHM_R | SHM_W);
     controlador = (Controller *)MapearMemoriaComp(idShMem);
     idSem=*((int *)controlador);
     Persona hombre;
     strcpy(hombre.nombre, argv[1]);
     hombre.genero='H';
      enqueue(controlador,hombre);
-    // controlador->occupied++;
-     printf("Servicios higienicos: %d %d\n", idSem,idShMem);
-     printf("bienvenido %s a los servicios higienicos\n", Front(controlador).nombre);
+    display(controlador);
+     printf("Servicios higienicos: %d %d\n", *((int *)controlador),idShMem);
+     printf("bienvenido %s a los servicios higienicos\n", hombre.nombre);
      DesbloquearSemaforo(idSem, 0);
     for (;;)
     {}

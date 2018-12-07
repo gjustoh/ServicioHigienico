@@ -9,7 +9,8 @@ typedef struct
 
 typedef struct
 {
-    char val_gen;
+    int id_proceso;
+    char gen;
     int L;
      int occupied;
     Persona per[MAXSIZE];
