@@ -42,6 +42,15 @@ int CrearSemaforos(int n, short *vals)
     semctl(id, 0, SETALL, arg);
     return id;
 }
+int CrearSemaforos2(int n, short *vals)
+{
+    union semun arg;
+    int id;
+    id = semget(IPC_PRIVATE, n, SHM_R | SHM_W);
+    arg.array = vals;
+    semctl(id, 0, SETALL, arg);
+    return id;
+}
 void BorrarSemaforos(int id)
 {
     if (semctl(id, 0, IPC_RMID, NULL) == -1)

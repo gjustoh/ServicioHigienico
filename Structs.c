@@ -10,6 +10,7 @@ typedef struct
 typedef struct
 {
     int id_proceso;
+    int id_proceso_2;
     char gen;
     int L;
      int occupied;
@@ -17,6 +18,7 @@ typedef struct
     int front;
     int rear;
     int size;
+    int cont;
 } Controller;
 
 int isempty(Controller *cont)

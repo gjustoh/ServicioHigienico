@@ -43,8 +43,11 @@ void entraHombre(Controller *cont)
         cont->occupied++;
         printf("-----------------\n");
         printf("Servicios Higienicos con capacidad para %d personas, ocupadas %d \n", cont->L, cont->occupied);
-        printf("ingreso de %s al servicio higienico\n", Front(cont).nombre);
-        dequeue(cont);
+        printf("ingreso de %s al servicio higienico %d\n", Front(cont).nombre,Front(cont).id);
+        
+        printf("%d",Front(cont).id);
+         DesbloquearSemaforo(cont->id_proceso_2,Front(cont).id);
+         dequeue(cont);
     }
     //  printf("->%d\n",cont->gen);
 }
@@ -65,7 +68,7 @@ int main(int argc, char *argv[])
     int idShMem, id; //handle a la memoria compartida
     size_t tabMem;
     key_t llave, key;
-    int idSem;     //handle al grupo de semáforos
+    int idSem,idSem2;     //handle al grupo de semáforos
     char *buf;     //dirección del buffer de memoria compartida
     short vals[2]; //valores para inicializar los semáforos
     int miSem;     //semáforo para nuestro usuario
@@ -80,9 +83,19 @@ int main(int argc, char *argv[])
 
     controlador = (Controller *)MapearMemoriaComp(idShMem);
     controlador->L = atoi(argv[1]);
+    // controlador->cont=0;
     vals[0] = 0;
     vals[1] = 0;
+    vals[2] = 0;
+    vals[3] = 0;
+    vals[4] = 0;
+    vals[5] = 0;
+    vals[6] = 0;
+    vals[7] = 0;
+
     idSem = CrearSemaforos(9, vals);
+    idSem2 = CrearSemaforos(9, vals);
+    controlador->id_proceso_2=idSem2;
     *((int *)controlador) = idSem;
 
     printf("-----------------\n");

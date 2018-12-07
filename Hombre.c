@@ -15,22 +15,31 @@ int main(int argc, char *argv[])
 {
     int idShMem, id; //handle a la memoria compartida
     size_t tabMem;
-    int idSem;     //handle al grupo de semáforos
+    int idSem; //handle al grupo de semáforos
     Controller *controlador;
     key_t key = ftok("shmfile", 65);
-   
-    idShMem = shmget(key, sizeof(Controller),  IPC_CREAT | SHM_R | SHM_W);
+
+    idShMem = shmget(key, sizeof(Controller), IPC_CREAT | SHM_R | SHM_W);
     controlador = (Controller *)MapearMemoriaComp(idShMem);
-    idSem=*((int *)controlador);
+    idSem = *((int *)controlador);
+
     Persona hombre;
+    hombre.id = controlador->cont;
+    
+    
+    id= controlador->cont;
     strcpy(hombre.nombre, argv[1]);
-    hombre.genero='H';
-     enqueue(controlador,hombre);
+    hombre.genero = 'H';
+    enqueue(controlador, hombre);
+    controlador->cont++;
     display(controlador);
-     printf("Servicios higienicos: %d %d\n", *((int *)controlador),idShMem);
-     printf("bienvenido %s a los servicios higienicos\n", hombre.nombre);
-     DesbloquearSemaforo(idSem, 0);
-    for (;;)
-    {}
-       
+    printf("Servicios higienicos: %d %d %d\n", controlador->cont, hombre.id,id);
+    printf("bienvenido %s a los servicios higienicos\n", hombre.nombre);
+    DesbloquearSemaforo(idSem, 0);
+    // for (;;)
+    // {
+            printf("Servicios higienicos: %d %d %d\n", controlador->cont, hombre.id,id);
+        BloquearSemaforo(controlador->id_proceso_2, id);
+        printf("usted entro al servicios higienicos\n");
+    // }
 }
