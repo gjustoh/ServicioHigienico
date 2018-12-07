@@ -1,4 +1,12 @@
 #define MAXSIZE 20
+/*
+ *Estructura Persona datos:
+ *nombre: nombre asignado
+ *genero: H si es hombre y M si es mujer
+ *id: identificador de la persona para el uso de semaforos
+ *isOcuped:"posible valor que no sirva"->esto nolo uso todavia, creo que lo eliminare 
+ * 
+ */
 typedef struct
 {
     char nombre[256];
@@ -6,7 +14,17 @@ typedef struct
     int id;
     char isOcuped;
 } Persona;
-
+/*id_proceso: guarda el valor de la memoria compartida, y el valor del primer grupo de semaforos
+ *id_proceso_2: guarda el valor del identificador del segundo grupo de semaforos
+ *gen: genero que se encuentra usando los servicios higienicos 
+ *L: valor de la capacidad del baño
+ *occupied: cantidad de banios que se estan usando 
+ *per[MAXSIZE]: cola de personal que esperan ingresar a los servicios higienicos, MAXSIZE tamaño maximo que pueda tener la cola 
+ *front: identificador de la persina que se encuentra al inicio de la cola 
+ *rear: analogo a front, pero apunta al final
+ *size: cantidad de personas en la cola 
+ *cont: identificador que incrementara por cada persona ingresada, y se asignara al campo id de Persona 
+ */
 typedef struct
 {
     int id_proceso;
@@ -82,6 +100,29 @@ void display(Controller *cont)
     if (cont->rear >= cont->front)
     {
         for (i = cont->front; i <= cont->rear; i++)
+        {
+            printf("%s\n", cont->per[i].nombre);
+        }
+    }
+     else
+     {
+        printf("NO HAY PERSONAS ESPERANDO\n\n");
+    //     for (i = cont->front; i < MAXSIZE; i++)
+    //     {
+    //         printf("->%s %d\n", cont->per[i].nombre,i);
+    //     }
+    //     for (i = 0; i <= cont->rear; i++)
+    //     {
+    //         printf("%s %d\n", cont->per[i].nombre,i);
+    //     }
+     }
+}
+void display2(Controller *cont)
+{
+    int i;
+    if (cont->rear >= cont->front)
+    {
+        for (i = cont->front+1; i <= cont->rear; i++)
         {
             printf("%s\n", cont->per[i].nombre);
         }
